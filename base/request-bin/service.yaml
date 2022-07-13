@@ -1,0 +1,13 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: request-bin
+spec:
+  selector:
+    deploymentconfig: request-bin
+  ports:
+    - name: gateway
+      port: 8000
+      protocol: TCP
+      targetPort: 8000

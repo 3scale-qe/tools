@@ -1,0 +1,12 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: request-bin-redis
+spec:
+  selector:
+    name: request-bin-redis
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379

@@ -1,0 +1,41 @@
+---
+kind: DeploymentConfig
+apiVersion: apps.openshift.io/v1
+metadata:
+  name: request-bin-redis
+spec:
+  replicas: 1
+  selector:
+    name: request-bin-redis
+  strategy:
+    type: Rolling
+    activeDeadlineSeconds: 21600
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+  template:
+    metadata:
+      labels:
+        name: request-bin-redis
+    spec:
+      containers:
+        - args:
+          image: registry.access.redhat.com/rhscl/redis-32-rhel7:3.2
+          imagePullPolicy: Always
+          name: request-bin-redis
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: request-bin-redis-storage
+              mountPath: /var/lib/redis/data
+      volumes:
+        - name: request-bin-redis-storage
+          mountPath: /var/lib/redis/data
+  triggers:
+    - type: ConfigChange

@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ../../base/httpbin/
   - ../../base/go-httpbin/
+  - ../../base/request-bin/
