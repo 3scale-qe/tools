@@ -9,3 +9,4 @@
 3. create resources through kustomization.yaml
    - httpbin: ```oc apply -k base/httpbin/ --namespace ${NAMESPACE}```
    - go-httpbin: ```oc apply -k base/go-httpbin/ --namespace ${NAMESPACE}```
+   - OR both ```oc apply -k overlays/all/ --namespace ${NAMESPACE}```
