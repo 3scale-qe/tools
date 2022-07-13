@@ -1,0 +1,48 @@
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: go-httpbin
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: go-httpbin
+    deploymentconfig: go-httpbin
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: go-httpbin
+        deploymentconfig: go-httpbin
+    spec:
+      containers:
+        - env:
+            - name: HTTPS_CERT_FILE
+              value: /tls/tls.crt
+            - name: HTTPS_KEY_FILE
+              value: /tls/tls.key
+          image: quay.io/rh_integration/go-httpbin:smadis
+          imagePullPolicy: IfNotPresent
+          name: go-httpbin
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: secrets
+              mountPath: /tls/
+      volumes:
+        - name: secrets
+          secret:
+            secretName: tls-cert
+  triggers:
+    - type: ConfigChange

@@ -1,0 +1,14 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: go-httpbin
+spec:
+  to:
+    kind: Service
+    name: go-httpbin
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Allow
