@@ -1,0 +1,26 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: fuse-camel-proxy
+spec:
+  selector:
+    matchLabels:
+      deployment: fuse-camel-proxy
+  template:
+    metadata:
+      labels:
+        deployment: fuse-camel-proxy
+    spec:
+      containers:
+        - name: fuse-camel-proxy
+          image: quay.io/rh_integration/3scale-fuse-camel-proxy:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8088
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+            - containerPort: 8778
+              protocol: TCP
