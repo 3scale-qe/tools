@@ -1,0 +1,45 @@
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: tinyproxy
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    app: tinyproxy
+    deploymentconfig: tinyproxy
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      labels:
+        app: tinyproxy
+        deploymentconfig: tinyproxy
+    spec:
+      containers:
+        - name: client
+          image: quay.io/rh_integration/tinyproxy:eloy
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: proxy
+              port: 8888
+              protocol: TCP
+              containerPort: 8888
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tinyproxy/
+      volumes:
+        - name: config
+          configMap:
+            name: tinyproxy-config
+  triggers:
+    - type: ConfigChange

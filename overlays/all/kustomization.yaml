@@ -8,4 +8,5 @@ resources:
   - ../../base/request-bin/
   - ../../base/echo-api/
   - ../../base/fuse-proxy/
+  - ../../base/tiny-proxy/
 
