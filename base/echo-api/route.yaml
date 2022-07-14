@@ -1,0 +1,14 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: echo-api
+spec:
+  to:
+    kind: Service
+    name: echo-api
+  port:
+    targetPort: 9292-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow

@@ -1,0 +1,20 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: echo-api
+spec:
+  selector:
+    matchLabels:
+      deployment: echo-api
+  template:
+    metadata:
+      labels:
+        deployment: echo-api
+    spec:
+      containers:
+        - name: echo-api
+          image: quay.io/3scale/echoapi:stable
+          ports:
+            - containerPort: 9292
+              protocol: TCP

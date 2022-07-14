@@ -6,3 +6,5 @@ resources:
   - ../../base/httpbin/
   - ../../base/go-httpbin/
   - ../../base/request-bin/
+  - ../../base/echo-api/
+

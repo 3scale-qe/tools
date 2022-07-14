@@ -1,0 +1,13 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: echo-api
+spec:
+  selector:
+    deployment: echo-api
+  ports:
+    - name: 9292-tcp
+      port: 9292
+      protocol: TCP
+      targetPort: 9292
