@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: mockserver
+  template:
+    metadata:
+      labels:
+        deployment: mockserver
+    spec:
+      containers:
+        - image: quay.io/mganisin/mockserver:latest
+          name: mockserver
+          ports:
+            - containerPort: 1080
+              protocol: TCP
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh", "init-mockserver"]

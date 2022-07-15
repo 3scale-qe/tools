@@ -9,4 +9,5 @@ resources:
   - ../../base/echo-api/
   - ../../base/fuse-proxy/
   - ../../base/tiny-proxy/
+  - ../../base/mockserver/
 
