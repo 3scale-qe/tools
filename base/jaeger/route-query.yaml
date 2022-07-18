@@ -1,0 +1,16 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: jaeger-query
+  labels:
+    jaeger-infra: query-route
+spec:
+  to:
+    kind: Service
+    name: jaeger-query
+  port:
+    targetPort: query-http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow

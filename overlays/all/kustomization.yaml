@@ -10,4 +10,5 @@ resources:
   - ../../base/fuse-proxy/
   - ../../base/tiny-proxy/
   - ../../base/mockserver/
+  - ../../base/jaeger/
 
