@@ -1,0 +1,14 @@
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: minio
+spec:
+  to:
+    kind: Service
+    name: minio-api
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
