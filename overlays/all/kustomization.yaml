@@ -12,4 +12,3 @@ resources:
   - ../../base/mockserver/
   - ../../base/jaeger/
   - ../../base/minio/
-

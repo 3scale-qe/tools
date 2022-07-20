@@ -1,0 +1,13 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  labels:
+    app: no-ssl-sso
+  name: no-ssl-sso
+spec:
+  port:
+    targetPort: 8080-8080
+  to:
+    kind: Service
+    name: no-ssl-sso
