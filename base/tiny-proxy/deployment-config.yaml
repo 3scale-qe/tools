@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: quay.io/rh_integration/tinyproxy:eloy
+          image: ghcr.io/3scale-qe/tinyproxy:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: proxy

@@ -21,7 +21,7 @@ images:
   - name: quay.io/rh_integration/3scale-fuse-camel-proxy
     newName: quay.io/rh_integration/3scale-fuse-camel-proxy
     newTag: latest
-  - name: quay.io/rh_integration/tinyproxy
+  - name: ghcr.io/3scale-qe/tinyproxy
     newName: quay.io/rh_integration/tinyproxy
     newTag: eloy
   - name: quay.io/mganisin/mockserver
