@@ -17,7 +17,7 @@ spec:
         deployment: mailhog
     spec:
       containers:
-        - image: docker.io/mailhog/mailhog:latest
+        - image: ghcr.io/3scale-qe/mailhog-container:latest
           imagePullPolicy: IfNotPresent
           name: mailhog
           ports:

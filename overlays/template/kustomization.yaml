@@ -6,7 +6,7 @@ images:
   - name: quay.io/rh_integration/httpbin
     newName: quay.io/rh_integration/httpbin
     newTag: smadis
-  - name: quay.io/rh_integration/go-httpbin
+  - name: ghcr.io/3scale-qe/go-httpbin
     newName: quay.io/rh_integration/go-httpbin
     newTag: smadis
   - name: quay.io/rh_integration/requestbin

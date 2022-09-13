@@ -31,7 +31,7 @@ spec:
               value: /tls/tls.crt
             - name: HTTPS_KEY_FILE
               value: /tls/tls.key
-          image: quay.io/rh_integration/go-httpbin:smadis
+          image: ghcr.io/3scale-qe/go-httpbin:latest
           imagePullPolicy: IfNotPresent
           name: go-httpbin
           ports:
