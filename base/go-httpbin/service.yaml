@@ -2,7 +2,12 @@
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    discovery.3scale.net: 'true'
   annotations:
+    discovery.3scale.net/path: /
+    discovery.3scale.net/port: '8080'
+    discovery.3scale.net/scheme: https
     service.alpha.openshift.io/serving-cert-secret-name: tls-cert
     service.beta.openshift.io/serving-cert-secret-name: tls-cert
   name: go-httpbin
