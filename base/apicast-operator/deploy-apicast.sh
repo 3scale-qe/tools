@@ -3,7 +3,7 @@
 set -exuo pipefail
 command -v envsubst
 
-TIMEOUT_TIME=5   # each 5sec: 5 * 5sec = 25sec
+TIMEOUT_TIME=10   # each 5sec: 10 * 5sec = 50sec
 FILE_ROOT=${BASH_SOURCE%/*}
 NAMESPACE=${NAMESPACE:="apicast-ga"}
 
