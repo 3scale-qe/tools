@@ -11,6 +11,10 @@ spec:
       port: 14250
       protocol: TCP
       targetPort: 14250
+    - name: jaeger-collector-grpc-2
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
     - name: jaeger-collector-tchannel
       port: 14267
       protocol: TCP

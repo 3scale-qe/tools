@@ -28,6 +28,8 @@ spec:
               value: "9411"
             - name: MAX_TRACES
               value: "50000"
+            - name: COLLECTOR_OTLP_ENABLED
+              value: 'true'
           image: quay.io/jaegertracing/all-in-one
           name: jaeger
           args: ["--memory.max-traces=$(MAX_TRACES)"]
@@ -39,6 +41,8 @@ spec:
             - containerPort: 6832
               protocol: UDP
             - containerPort: 16686
+              protocol: TCP
+            - containerPort: 4317
               protocol: TCP
             - containerPort: 9411
               protocol: TCP
