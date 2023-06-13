@@ -16,6 +16,9 @@ spec:
       containers:
         - image: quay.io/mganisin/mockserver:latest
           name: mockserver
+          resources:
+            limits:
+              memory: 2G
           ports:
             - containerPort: 1080
               protocol: TCP
