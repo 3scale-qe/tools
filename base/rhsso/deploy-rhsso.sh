@@ -4,11 +4,11 @@ set -exuo pipefail
 command -v envsubst
 
 TIMEOUT_TIME=25   # each 5sec: 25 * 5sec = 125sec
-FILE_ROOT=${BASH_SOURCE%/*}
+FILE_ROOT="${BASH_SOURCE%/*}"
 
-NAMESPACE=${NAMESPACE:=tools}
-ADMIN_USERNAME=${ADMIN_USERNAME:="admin"}
-ADMIN_PASSWORD=${ADMIN_PASSWORD:="admin"}
+NAMESPACE="${NAMESPACE:=tools}"
+ADMIN_USERNAME="${ADMIN_USERNAME:="admin"}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:="admin"}"
 
 function waitSuccess {
   TIMEOUT=0
@@ -24,18 +24,20 @@ function waitSuccess {
   done
 }
 
+export NAMESPACE ADMIN_PASSWORD ADMIN_USERNAME
+
 function deployRHSSO {
-  cat ${FILE_ROOT}/operator-group.yaml.tpl | TARGET_NAMESPACE=${NAMESPACE} envsubst | oc apply -f - -n ${NAMESPACE}
-  oc apply -f "${FILE_ROOT}"/keycloak-subscription.yaml -n ${NAMESPACE}
-  waitSuccess oc wait installplan --all --for=condition=Installed -n ${NAMESPACE}
+  <"${FILE_ROOT}"/operator-group.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
+  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/keycloak-subscription.yaml
+  waitSuccess oc wait -n "${NAMESPACE}" installplan --all --for=condition=Installed
 
-  cat ${FILE_ROOT}/credential-sso-secret.yaml.tpl | ADMIN_USERNAME=${ADMIN_USERNAME} ADMIN_PASSWORD=${ADMIN_PASSWORD} envsubst | oc apply -f - -n ${NAMESPACE}
-  oc apply -f "${FILE_ROOT}"/sso-keycloak.yaml -n ${NAMESPACE}
-  oc apply -f "${FILE_ROOT}"/no-ssl-sso-service.yaml -n ${NAMESPACE}
-  oc apply -f "${FILE_ROOT}"/no-ssl-sso-route.yaml -n ${NAMESPACE}
-  waitSuccess oc rollout status statefulset/keycloak -w -n ${NAMESPACE}
+  <"${FILE_ROOT}"/credential-sso-secret.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
+  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/sso-keycloak.yaml
+  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-service.yaml
+  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-route.yaml
+  waitSuccess oc rollout -n "${NAMESPACE}" status statefulset/keycloak -w
 
-  oc --namespace ${NAMESPACE} rsh statefulset/keycloak bash -c "/opt/eap/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user ${ADMIN_USERNAME} --password ${ADMIN_PASSWORD} --no-config"
+  oc rsh -n "${NAMESPACE}" statefulset/keycloak bash -c "/opt/eap/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user ${ADMIN_USERNAME} --password ${ADMIN_PASSWORD} --no-config"
 }
 
 deployRHSSO
