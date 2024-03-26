@@ -35,7 +35,7 @@ function deployRHSSO {
   oc apply -f "${FILE_ROOT}"/no-ssl-sso-route.yaml -n ${NAMESPACE}
   waitSuccess oc rollout status statefulset/keycloak -w -n ${NAMESPACE}
 
-  oc --namespace ${NAMESPACE} rsh statefulset/keycloak bash -c "/opt/eap/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://no-ssl-sso:8080/auth --realm master --user ${ADMIN_USERNAME} --password ${ADMIN_PASSWORD} --no-config"
+  oc --namespace ${NAMESPACE} rsh statefulset/keycloak bash -c "/opt/eap/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/auth --realm master --user ${ADMIN_USERNAME} --password ${ADMIN_PASSWORD} --no-config"
 }
 
 deployRHSSO
