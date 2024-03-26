@@ -13,4 +13,4 @@ spec:
       targetPort: 16686
   selector:
     jaeger-infra: jaeger-pod
-  type: LoadBalancer
+  type: ClusterIP
