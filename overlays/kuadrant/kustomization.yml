@@ -6,6 +6,7 @@ resources:
   - ../../base/go-httpbin/
   - ../../base/mockserver/
   - ../../base/jaeger/
+  - ../../base/keycloak-deployment/
 
 images:
   - name: quay.io/rh_integration/go-httpbin
