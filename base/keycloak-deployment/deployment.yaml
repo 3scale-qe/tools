@@ -22,12 +22,12 @@ spec:
             - name: KEYCLOAK_ADMIN
               valueFrom:
                 secretKeyRef:
-                  name: credential-sso.yaml
+                  name: credential-sso
                   key: ADMIN_USERNAME
             - name: KEYCLOAK_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: credential-sso.yaml
+                  name: credential-sso
                   key: ADMIN_PASSWORD
             - name: KC_PROXY
               value: edge
