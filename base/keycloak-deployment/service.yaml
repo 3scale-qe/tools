@@ -11,4 +11,5 @@ spec:
     - name: keycloak
       port: 8080
       protocol: TCP
+      targetPort: auth
   type: LoadBalancer
