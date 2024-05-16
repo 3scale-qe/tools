@@ -3,9 +3,6 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 images:
-  - name: quay.io/rh_integration/httpbin
-    newName: quay.io/rh_integration/httpbin
-    newTag: smadis
   - name: ghcr.io/3scale-qe/go-httpbin
     newName: quay.io/rh_integration/go-httpbin
     newTag: smadis
@@ -15,9 +12,6 @@ images:
   - name: registry.access.redhat.com/rhscl/redis-32-rhel7
     newName: registry.access.redhat.com/rhscl/redis-32-rhel7
     newTag: "3.2"
-  - name: quay.io/3scale/echoapi
-    newName: quay.io/3scale/echoapi
-    newTag: stable
   - name: quay.io/rh_integration/3scale-fuse-camel-proxy
     newName: quay.io/rh_integration/3scale-fuse-camel-proxy
     newTag: latest
@@ -38,10 +32,8 @@ patchesStrategicMerge:
   - minio-credentials.yaml
 
 resources:
-  - ../../base/httpbin/
   - ../../base/go-httpbin/
   - ../../base/request-bin/
-  - ../../base/echo-api/
   - ../../base/fuse-proxy/
   - ../../base/tiny-proxy/
   - ../../base/mockserver/
