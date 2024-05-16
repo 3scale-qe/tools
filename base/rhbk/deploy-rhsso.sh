@@ -34,6 +34,7 @@ function deployRHBK {
   PASSWD=$(oc get secret rhbk-initial-admin -o jsonpath='{.data.password}' -n "${NAMESPACE}" | base64 --decode)
 
   oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c "/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/ --realm master --user admin --password ${PASSWD} --no-config; /opt/keycloak/bin/kcadm.sh set-password --server http://localhost:8080/ --realm master --user admin --password ${PASSWD} --username admin --new-password ${ADMIN_PASSWORD} --no-config"
+  oc patch -n "${NAMESPACE}" secret/rhbk-initial-admin --type json -p '[{"op": "replace", "path": "/data/password", "value":"'$(echo -en "$ADMIN_PASSWORD" | base64 -w0)'"}]'
 
 }
 
