@@ -1,0 +1,63 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak-db
+spec:
+  serviceName: keycloak-db
+  selector:
+    matchLabels:
+      app: keycloak-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: keycloak-db
+    spec:
+      containers:
+        - name: keycloak-db
+          image: quay.io/sclorg/postgresql-15-c9s
+          volumeMounts:
+            - mountPath: /data
+              name: keycloak-data
+          env:
+            - name: POSTGRESQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: credential-sso
+                  key: DB_USERNAME
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: credential-sso
+                  key: DB_PASSWORD
+            - name: POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: credential-sso
+                  key: DB_NAME
+            - name: PGDATA
+              value: /data/pgdata
+  volumeClaimTemplates:
+  - metadata:
+      name: keycloak-data
+      labels:
+        app: keycloak-db
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-db
+spec:
+  selector:
+    app: keycloak-db
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+

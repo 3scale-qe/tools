@@ -31,6 +31,20 @@ spec:
                   key: ADMIN_PASSWORD
             - name: KC_PROXY
               value: edge
+            - name: KC_DB
+              value: "postgres"
+            - name: "KC_DB_URL"
+              value: "jdbc:postgresql://keycloak-db/keycloak"
+            - name: "KC_DB_USERNAME"
+              valueFrom:
+                secretKeyRef:
+                  name: credential-sso
+                  key: DB_USERNAME
+            - name: "KC_DB_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: credential-sso
+                  key: DB_PASSWORD
           ports:
             - name: auth
               containerPort: 8080
