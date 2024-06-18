@@ -5,6 +5,7 @@ metadata:
   labels:
     app: keycloak
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: keycloak
@@ -48,4 +49,12 @@ spec:
           ports:
             - name: auth
               containerPort: 8080
-  replicas: 1
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/bash"
+                  - "-c"
+                  - "while ! /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/ --realm master --user $KEYCLOAK_ADMIN --password $KEYCLOAK_ADMIN_PASSWORD --no-config; do sleep 10; done"
+
+
