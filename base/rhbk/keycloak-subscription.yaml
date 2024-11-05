@@ -4,7 +4,7 @@ kind: Subscription
 metadata:
   name: rhbk-operator
 spec:
-  channel: stable-v22
+  channel: stable-v24
   installPlanApproval: Automatic
   name: rhbk-operator
   source: redhat-operators
