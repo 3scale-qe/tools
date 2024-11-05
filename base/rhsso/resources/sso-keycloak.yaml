@@ -6,6 +6,8 @@ metadata:
   labels:
     app: sso
 spec:
+  DisableDefaultServiceMonitor: true
   externalAccess:
     enabled: true
   instances: 1
+
