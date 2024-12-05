@@ -15,6 +15,6 @@ fi
 
 oc apply -k overlays/testsuite/ --namespace "${SHARED_NAMESPACE}"
 
-NAMESPACE=$SHARED_NAMESPACE ./base/rhsso/deploy-rhsso.sh
+NAMESPACE=$SHARED_NAMESPACE ./base/rhbk/deploy-rhsso.sh
 
 oc apply -k overlays/exclusive/ --namespace "${THREESCALE_NAMESPACE:=3scale}"
