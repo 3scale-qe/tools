@@ -15,7 +15,7 @@ export NAMESPACE ADMIN_PASSWORD ADMIN_USERNAME
 function deployRHSSO {
   <"${FILE_ROOT}"/operator-group.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/keycloak-subscription.yaml
-  oc wait -n "${NAMESPACE}" --for=jsonpath=status.installPlanRef.name subscription rhsso-operator --timeout="$TIMEOUT_TIME"s
+  oc wait -n "${NAMESPACE}" --for=jsonpath='{.status.installPlanRef.name}' subscription rhsso-operator --timeout="$TIMEOUT_TIME"s
   oc wait -n "${NAMESPACE}" --for=condition=Installed installplan --all --timeout="$TIMEOUT_TIME"s
 
   <"${FILE_ROOT}"/credential-sso-secret.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -

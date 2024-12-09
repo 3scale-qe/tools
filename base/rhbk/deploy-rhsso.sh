@@ -19,7 +19,7 @@ function deployRHBK {
   <"${FILE_ROOT}"/db-credentials.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
   <"${FILE_ROOT}"/operator-group.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/keycloak-subscription.yaml
-  oc wait -n "${NAMESPACE}" --for=jsonpath=status.installPlanRef.name subscription rhbk-operator --timeout="$TIMEOUT_TIME"s
+  oc wait -n "${NAMESPACE}" --for=jsonpath='{.status.installPlanRef.name}' subscription rhbk-operator --timeout="$TIMEOUT_TIME"s
   oc wait -n "${NAMESPACE}" --for=condition=Installed installplan --all --timeout="$TIMEOUT_TIME"s
 
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/rhbk-db.yaml
