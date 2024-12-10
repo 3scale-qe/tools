@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deploy-rhsso-operator
+spec:
+  template:
+    spec:
+      serviceAccountName: deploy-rhsso-operator
+      containers:
+        - name: deploy-rhsso-operator
+          image: docker.io/bitnami/kubectl:latest
+          command: ["/bin/bash", "-cx"]
+          args: ["./deploy-rhsso.sh"]
+          volumeMounts:
+            - name: rhsso-operator-resources
+              mountPath: deploy-rhsso.sh
+              subPath: deploy-rhsso.sh
+            - name: rhsso-operator-resources
+              mountPath: resources/sso-keycloak.yaml
+              subPath: sso-keycloak.yaml
+            - name: rhsso-operator-resources
+              mountPath: resources/keycloak-subscription.yaml
+              subPath: keycloak-subscription.yaml
+            - name: rhsso-operator-resources
+              mountPath: resources/no-ssl-sso-service.yaml
+              subPath: no-ssl-sso-service.yaml
+            - name: rhsso-operator-resources
+              mountPath: resources/no-ssl-sso-route.yaml
+              subPath: no-ssl-sso-route.yaml
+            - name: rhsso-operator-resources
+              mountPath: resources/operator-group.yaml.tpl
+              subPath: operator-group.yaml.tpl
+      volumes:
+        - name: rhsso-operator-resources
+          configMap:
+            name: rhsso-operator-resources
+            items:
+              - key: deploy-rhsso.sh
+                mode: 0750
+                path: deploy-rhsso.sh
+              - key: sso-keycloak.yaml
+                path: sso-keycloak.yaml
+              - key: keycloak-subscription.yaml
+                path: keycloak-subscription.yaml
+              - key: no-ssl-sso-service.yaml
+                path: no-ssl-sso-service.yaml
+              - key: no-ssl-sso-route.yaml
+                path: no-ssl-sso-route.yaml
+              - key: operator-group.yaml.tpl
+                path: operator-group.yaml.tpl
+      restartPolicy: Never
