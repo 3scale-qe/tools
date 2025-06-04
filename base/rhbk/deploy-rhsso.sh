@@ -3,7 +3,7 @@
 set -exuo pipefail
 command -v envsubst
 
-TIMEOUT_TIME="${TIMEOUT_TIME:=125}"
+TIMEOUT_TIME="${TIMEOUT_TIME:=300}"
 FILE_ROOT="${BASH_SOURCE%/*}"
 
 NAMESPACE="${NAMESPACE:=tools}"
@@ -24,6 +24,7 @@ function deployRHBK {
 
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/rhbk-db.yaml
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-route.yaml
+  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-management-route.yaml
 
   FQDN=$(oc get -n "${NAMESPACE}" route/no-ssl-rhbk -o jsonpath='{.status.ingress[0].host}') \
       <"${FILE_ROOT}"/sso-keycloak.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
@@ -31,10 +32,14 @@ function deployRHBK {
   timeout "$TIMEOUT_TIME" bash -c "oc get statefulset -w -n ${NAMESPACE} -o name | grep -qm1 '^statefulset.apps/rhbk$'"
   oc rollout -n "${NAMESPACE}" status statefulset/rhbk --timeout="$TIMEOUT_TIME"s
 
+  USERNAME=$(oc get secret rhbk-initial-admin -o jsonpath='{.data.username}' -n "${NAMESPACE}" | base64 --decode)
   PASSWD=$(oc get secret rhbk-initial-admin -o jsonpath='{.data.password}' -n "${NAMESPACE}" | base64 --decode)
 
-  oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c "/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/ --realm master --user admin --password ${PASSWD} --no-config; /opt/keycloak/bin/kcadm.sh set-password --server http://localhost:8080/ --realm master --user admin --password ${PASSWD} --username admin --new-password ${ADMIN_PASSWORD} --no-config"
+  oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c '/opt/keycloak/bin/kc.sh build --health-enabled=true'
+  oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c "/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/ --realm master --user ${USERNAME} --password ${PASSWD} --no-config; /opt/keycloak/bin/kcadm.sh set-password --server http://localhost:8080/ --realm master --user ${USERNAME} --password ${PASSWD} --username ${USERNAME} --new-password ${ADMIN_PASSWORD} --no-config"
   oc patch -n "${NAMESPACE}" secret/rhbk-initial-admin --type json -p '[{"op": "replace", "path": "/data/password", "value":"'$(echo -en "$ADMIN_PASSWORD" | base64 -w0)'"}]'
+
+  echo -e 'RHBK v26 generates `temp-admin` user, password was changed to provided ADMIN_PASSWORD.'
 
 }
 

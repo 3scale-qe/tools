@@ -3,7 +3,7 @@
 set -exuo pipefail
 command -v envsubst
 
-TIMEOUT_TIME="${TIMEOUT_TIME:=125}"
+TIMEOUT_TIME="${TIMEOUT_TIME:=300}"
 FILE_ROOT="${BASH_SOURCE%/*}"
 
 NAMESPACE="${NAMESPACE:=tools}"
