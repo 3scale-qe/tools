@@ -14,7 +14,7 @@ spec:
         deployment: mockserver
     spec:
       containers:
-        - image: quay.io/mganisin/mockserver:latest
+        - image: quay.io/rh_integration/mockserver:latest
           name: mockserver
           resources:
             limits:

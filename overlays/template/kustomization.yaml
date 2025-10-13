@@ -18,8 +18,8 @@ images:
   - name: ghcr.io/3scale-qe/tinyproxy
     newName: quay.io/rh_integration/tinyproxy
     newTag: eloy
-  - name: quay.io/mganisin/mockserver
-    newName: quay.io/mganisin/mockserver
+  - name: quay.io/rh_integration/mockserver
+    newName: quay.io/rh_integration/mockserver
     newTag: latest
   - name: quay.io/jaegertracing/all-in-one
     newName: quay.io/rh_integration/jaeger-aio
