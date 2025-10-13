@@ -101,9 +101,6 @@ fabric.properties
 
 .idea/*
 
-!.idea/codeStyles
-!.idea/runConfigurations
-
 ### Vim ###
 # Swap
 [._]*.s[a-v][a-z]
