@@ -6,6 +6,9 @@ metadata:
   labels:
     app: rhbk
 spec:
+  bootstrapAdmin:
+    user:
+      secret: rhbk-admin
   db:
     host: rhbk-db
     passwordSecret:
@@ -21,10 +24,10 @@ spec:
     strict: false
     strictBackchannel: false
   http:
-    httpEnabled: true
-    httpPort: 8080
+    httpsPort: 8443
+    tlsSecret: keycloak-tls
   ingress:
-    enabled: false
+    enabled: true
   unsupported:
     podTemplate:
       spec:

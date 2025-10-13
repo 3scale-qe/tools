@@ -23,23 +23,24 @@ function deployRHBK {
   oc wait -n "${NAMESPACE}" --for=condition=Installed installplan --all --timeout="$TIMEOUT_TIME"s
 
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/rhbk-db.yaml
-  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-route.yaml
-  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/no-ssl-sso-management-route.yaml
+  oc create -n "${NAMESPACE}" secret generic rhbk-admin --from-literal username="${ADMIN_USERNAME}" --from-literal password="${ADMIN_PASSWORD}"
 
-  FQDN=$(oc get -n "${NAMESPACE}" route/no-ssl-rhbk -o jsonpath='{.status.ingress[0].host}') \
+  ING_SECRET=$(oc -n openshift-ingress-operator get ingresscontroller default -o jsonpath='{.spec.defaultCertificate.name}')
+  if [ -z "$ING_SECRET" ]; then ING_SECRET="router-certs-default"; fi
+  tmpdir="$(mktemp -d)"
+  oc -n openshift-ingress extract secret/"$ING_SECRET" --confirm --to="$tmpdir"
+  oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key"
+  rm -rf "$tmpdir"
+
+  FQDN="ssl-rhbk-${NAMESPACE}.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')" \
       <"${FILE_ROOT}"/sso-keycloak.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
 
   timeout "$TIMEOUT_TIME" bash -c "oc get statefulset -w -n ${NAMESPACE} -o name | grep -qm1 '^statefulset.apps/rhbk$'"
   oc rollout -n "${NAMESPACE}" status statefulset/rhbk --timeout="$TIMEOUT_TIME"s
 
-  USERNAME=$(oc get secret rhbk-initial-admin -o jsonpath='{.data.username}' -n "${NAMESPACE}" | base64 --decode)
-  PASSWD=$(oc get secret rhbk-initial-admin -o jsonpath='{.data.password}' -n "${NAMESPACE}" | base64 --decode)
-
   oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c '/opt/keycloak/bin/kc.sh build --health-enabled=true'
-  oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c "/opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE --server http://localhost:8080/ --realm master --user ${USERNAME} --password ${PASSWD} --no-config; /opt/keycloak/bin/kcadm.sh set-password --server http://localhost:8080/ --realm master --user ${USERNAME} --password ${PASSWD} --username ${USERNAME} --new-password ${ADMIN_PASSWORD} --no-config"
-  oc patch -n "${NAMESPACE}" secret/rhbk-initial-admin --type json -p '[{"op": "replace", "path": "/data/password", "value":"'$(echo -en "$ADMIN_PASSWORD" | base64 -w0)'"}]'
 
-  echo -e 'RHBK v26 generates `temp-admin` user, password was changed to provided ADMIN_PASSWORD.'
+  echo -e 'RHBK v26 installed'
 
 }
 
