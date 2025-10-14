@@ -23,20 +23,23 @@ function deployRHBK {
   oc wait -n "${NAMESPACE}" --for=condition=Installed installplan --all --timeout="$TIMEOUT_TIME"s
 
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/rhbk-db.yaml
-  oc create -n "${NAMESPACE}" secret generic rhbk-admin --from-literal username="${ADMIN_USERNAME}" --from-literal password="${ADMIN_PASSWORD}"
+  oc create -n "${NAMESPACE}" secret generic rhbk-admin --from-literal username="${ADMIN_USERNAME}" --from-literal password="${ADMIN_PASSWORD}" --dry-run=client -o yaml | oc apply -f -
 
   ING_SECRET=$(oc -n openshift-ingress-operator get ingresscontroller default -o jsonpath='{.spec.defaultCertificate.name}')
   if [ -z "$ING_SECRET" ]; then ING_SECRET="router-certs-default"; fi
   tmpdir="$(mktemp -d)"
   oc -n openshift-ingress extract secret/"$ING_SECRET" --confirm --to="$tmpdir"
-  oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key"
+  oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key" --dry-run=client -o yaml | oc apply -f -
   rm -rf "$tmpdir"
 
-  FQDN="ssl-rhbk-${NAMESPACE}.$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')" \
+  APPS_URL=$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')
+  FQDN="ssl-rhbk-${NAMESPACE}.${APPS_URL}" \
       <"${FILE_ROOT}"/sso-keycloak.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
 
   timeout "$TIMEOUT_TIME" bash -c "oc get statefulset -w -n ${NAMESPACE} -o name | grep -qm1 '^statefulset.apps/rhbk$'"
   oc rollout -n "${NAMESPACE}" status statefulset/rhbk --timeout="$TIMEOUT_TIME"s
+
+  oc create --namespace "${NAMESPACE}" route passthrough ssl-rhbk-management --service rhbk-service --port management --dry-run=client -o yaml | oc apply -f -
 
   oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c '/opt/keycloak/bin/kc.sh build --health-enabled=true'
 
