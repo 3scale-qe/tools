@@ -39,6 +39,7 @@ function deployRHBK {
   timeout "$TIMEOUT_TIME" bash -c "oc get statefulset -w -n ${NAMESPACE} -o name | grep -qm1 '^statefulset.apps/rhbk$'"
   oc rollout -n "${NAMESPACE}" status statefulset/rhbk --timeout="$TIMEOUT_TIME"s
 
+  oc create --namespace "${NAMESPACE}" route passthrough ssl-rhbk --service rhbk-service --port https --dry-run=client -o yaml | oc apply -f -
   oc create --namespace "${NAMESPACE}" route passthrough ssl-rhbk-management --service rhbk-service --port management --dry-run=client -o yaml | oc apply -f -
 
   oc rsh -n "${NAMESPACE}" statefulsets/rhbk bash -c '/opt/keycloak/bin/kc.sh build --health-enabled=true'

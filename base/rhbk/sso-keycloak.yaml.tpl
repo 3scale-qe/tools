@@ -27,7 +27,7 @@ spec:
     httpsPort: 8443
     tlsSecret: keycloak-tls
   ingress:
-    enabled: true
+    enabled: false
   unsupported:
     podTemplate:
       spec:
