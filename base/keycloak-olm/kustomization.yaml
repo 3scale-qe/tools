@@ -1,0 +1,19 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app: keycloak-operator-deployment
+
+resources:
+  - rbac.yaml
+  - deploy-keycloak-job.yaml
+
+configMapGenerator:
+  - name: keycloak-operator-resources
+    files:
+      - deploy-keycloak.sh
+      - resources/keycloak.yaml
+      - resources/keycloak-subscription.yaml
+      - resources/load-balancer-service.yaml
+      - resources/operator-group.yaml.tpl
