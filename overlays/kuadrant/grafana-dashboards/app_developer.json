@@ -1,0 +1,9 @@
+---
+apiVersion: integreatly.org/v1alpha1
+kind: GrafanaDashboard
+metadata:
+  name: app-developer-dashboard
+  namespace: <your-grafana-namespace>
+spec:
+  json:
+    url: "https://raw.githubusercontent.com/Kuadrant/kuadrant-operator/main/examples/dashboards/app_developer.json"
