@@ -25,12 +25,23 @@ function deployRHBK {
   oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/rhbk-db.yaml
   oc create -n "${NAMESPACE}" secret generic rhbk-admin --from-literal username="${ADMIN_USERNAME}" --from-literal password="${ADMIN_PASSWORD}" --dry-run=client -o yaml | oc apply -f -
 
-  ING_SECRET=$(oc -n openshift-ingress-operator get ingresscontroller default -o jsonpath='{.spec.defaultCertificate.name}')
-  if [ -z "$ING_SECRET" ]; then ING_SECRET="router-certs-default"; fi
-  tmpdir="$(mktemp -d)"
-  oc -n openshift-ingress extract secret/"$ING_SECRET" --confirm --to="$tmpdir"
-  oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key" --dry-run=client -o yaml | oc apply -f -
-  rm -rf "$tmpdir"
+  # Check if keycloak-tls secret exists in infra-3scale (pre-created by create-rhbk-tls.sh with unique cert)
+  # This avoids HTTP/2 connection coalescing issues when using the same wildcard cert as ingress
+  if oc -n infra-3scale get secret keycloak-tls &>/dev/null; then
+    echo "Using existing keycloak-tls secret from infra-3scale (pre-created with unique certificate)"
+    tmpdir="$(mktemp -d)"
+    oc -n infra-3scale extract secret/keycloak-tls --confirm --to="$tmpdir"
+    oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key" --dry-run=client -o yaml | oc apply -f -
+    rm -rf "$tmpdir"
+  else
+    echo "No keycloak-tls secret found in infra-3scale, extracting from ingress controller"
+    ING_SECRET=$(oc -n openshift-ingress-operator get ingresscontroller default -o jsonpath='{.spec.defaultCertificate.name}')
+    if [ -z "$ING_SECRET" ]; then ING_SECRET="router-certs-default"; fi
+    tmpdir="$(mktemp -d)"
+    oc -n openshift-ingress extract secret/"$ING_SECRET" --confirm --to="$tmpdir"
+    oc -n "${NAMESPACE}" create secret tls keycloak-tls --cert="$tmpdir/tls.crt" --key="$tmpdir/tls.key" --dry-run=client -o yaml | oc apply -f -
+    rm -rf "$tmpdir"
+  fi
 
   APPS_URL=$(oc get ingresses.config/cluster -o jsonpath='{.spec.domain}')
   FQDN="ssl-rhbk-${NAMESPACE}.${APPS_URL}" \
