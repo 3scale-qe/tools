@@ -35,3 +35,11 @@ spec:
           - args:
               - start-dev
   instances: 1
+  additionalOptions:
+    - name: https-client-auth
+      value: request
+  truststores:
+    shared-certs-ca:
+      secret:
+        name: rhbk-client-ca
+        optional: true
