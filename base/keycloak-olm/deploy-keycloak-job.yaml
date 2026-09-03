@@ -1,0 +1,47 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: deploy-keycloak-operator
+spec:
+  template:
+    spec:
+      serviceAccountName: deploy-keycloak-operator
+      containers:
+        - name: deploy-keycloak-operator
+          image: docker.io/bitnami/kubectl:latest
+          command: ["/bin/bash", "-cx"]
+          args: ["./deploy-keycloak.sh"]
+          volumeMounts:
+            - name: keycloak-operator-resources
+              mountPath: deploy-keycloak.sh
+              subPath: deploy-keycloak.sh
+            - name: keycloak-operator-resources
+              mountPath: resources/keycloak.yaml
+              subPath: keycloak.yaml
+            - name: keycloak-operator-resources
+              mountPath: resources/keycloak-subscription.yaml
+              subPath: keycloak-subscription.yaml
+            - name: keycloak-operator-resources
+              mountPath: resources/load-balancer-service.yaml
+              subPath: load-balancer-service.yaml
+            - name: keycloak-operator-resources
+              mountPath: resources/operator-group.yaml.tpl
+              subPath: operator-group.yaml.tpl
+      volumes:
+        - name: keycloak-operator-resources
+          configMap:
+            name: keycloak-operator-resources
+            items:
+              - key: deploy-keycloak.sh
+                mode: 0750
+                path: deploy-keycloak.sh
+              - key: keycloak.yaml
+                path: keycloak.yaml
+              - key: keycloak-subscription.yaml
+                path: keycloak-subscription.yaml
+              - key: load-balancer-service.yaml
+                path: load-balancer-service.yaml
+              - key: operator-group.yaml.tpl
+                path: operator-group.yaml.tpl
+      restartPolicy: Never

@@ -1,0 +1,18 @@
+---
+kind: Keycloak
+apiVersion: k8s.keycloak.org/v2alpha1
+metadata:
+  name: keycloak
+  labels:
+    app: sso
+spec:
+  additionalOptions:
+    - name: KC_CACHE
+      value: local
+  hostname:
+    strict: false
+  ingress:
+    enabled: false
+  http:
+    httpEnabled: true
+    httpPort: 8080
