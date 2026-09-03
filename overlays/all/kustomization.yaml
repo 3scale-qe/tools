@@ -11,4 +11,3 @@ resources:
   - ../../base/tiny-proxy/
   - ../../base/mockserver/
   - ../../base/jaeger/
-  - ../../base/minio/

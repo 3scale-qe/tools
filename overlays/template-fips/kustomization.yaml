@@ -18,16 +18,9 @@ images:
   - name: quay.io/jaegertracing/all-in-one
     newName: quay.io/rh_integration/jaeger-aio
     newTag: latest
-  - name: quay.io/minio/minio
-    newName: quay.io/minio/minio
-    newTag: latest
-
-patchesStrategicMerge:
-  - minio-credentials.yaml
 
 resources:
   - ../../base/go-httpbin/
   - ../../base/request-bin/
   - ../../base/tiny-proxy/
   - ../../base/jaeger/
-  - ../../base/minio/
