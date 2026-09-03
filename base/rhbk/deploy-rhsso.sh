@@ -15,10 +15,65 @@ DB_PASSWORD="${DB_PASSWORD:="dbpassword"}"
 
 export NAMESPACE ADMIN_PASSWORD ADMIN_USERNAME DB_PASSWORD DB_USERNAME
 
+function getOCPVersion {
+  oc get clusterversion version -o jsonpath='{.status.desired.version}'
+}
+
+function isOCPPreview {
+  local version
+  version=$(getOCPVersion)
+  echo "$version" | grep -qiE '\-(rc|er|ec)'
+}
+
+function setupCatalogSourceForPreview {
+  local version major minor catalog_version
+  version=$(getOCPVersion)
+  major="${version%%.*}"
+  minor="${version#*.}"; minor="${minor%%.*}"
+
+  # For 5.0 preview, use 4.22. For other previews, use previous minor version
+  if [[ "$major" -eq 5 && "$minor" -eq 0 ]]; then
+    catalog_version="4.22"
+  else
+    catalog_version="${major}.$((minor - 1))"
+  fi
+
+  echo "OCP preview version detected (${version}), using catalog source from OCP v${catalog_version}"
+
+  cat <<EOF | oc apply -n "${NAMESPACE}" -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: redhat-operators-prev
+spec:
+  displayName: Red Hat Operators v${catalog_version}
+  image: registry.redhat.io/redhat/redhat-operator-index:v${catalog_version}
+  publisher: Red Hat
+  sourceType: grpc
+  updateStrategy:
+    registryPoll:
+      interval: 10m
+EOF
+
+  if ! timeout 120 bash -c "until oc get catalogsource redhat-operators-prev -n '${NAMESPACE}' -o jsonpath='{.status.connectionState.lastObservedState}' 2>/dev/null | grep -q 'READY'; do sleep 5; done"; then
+    echo "ERROR: CatalogSource redhat-operators-prev did not become READY within 120s" >&2
+    return 1
+  fi
+}
+
 function deployRHBK {
   <"${FILE_ROOT}"/db-credentials.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
   <"${FILE_ROOT}"/operator-group.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
-  oc apply -n "${NAMESPACE}" -f "${FILE_ROOT}"/keycloak-subscription.yaml
+
+  export RHBK_CATALOG_SOURCE="redhat-operators"
+  export RHBK_CATALOG_NS="openshift-marketplace"
+  if isOCPPreview; then
+    setupCatalogSourceForPreview
+    RHBK_CATALOG_SOURCE="redhat-operators-prev"
+    RHBK_CATALOG_NS="${NAMESPACE}"
+  fi
+
+  <"${FILE_ROOT}"/keycloak-subscription.yaml.tpl envsubst | oc apply -n "${NAMESPACE}" -f -
   oc wait -n "${NAMESPACE}" --for=jsonpath='{.status.installPlanRef.name}' subscription rhbk-operator --timeout="$TIMEOUT_TIME"s
   oc wait -n "${NAMESPACE}" --for=condition=Installed installplan --all --timeout="$TIMEOUT_TIME"s
 
