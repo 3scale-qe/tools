@@ -28,6 +28,9 @@ spec:
     tlsSecret: keycloak-tls
   ingress:
     enabled: false
+  additionalOptions:
+    - name: https-client-auth
+      value: request
   unsupported:
     podTemplate:
       spec:

@@ -8,4 +8,7 @@ metadata:
 spec:
   externalAccess:
     enabled: true
+  additionalOptions:
+    - name: https-client-auth
+      value: request
   instances: 1

@@ -20,6 +20,7 @@ spec:
           args:
             - start-dev
             - --health-enabled=true
+            - --https-client-auth=request
           startupProbe:
             httpGet:
               path: /health/ready
