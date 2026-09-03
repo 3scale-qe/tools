@@ -1,0 +1,9 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - app_developer_dashboard.yaml
+  - business_user_dashboard.yaml
+  - platform_engineer_dashboard.yaml
+

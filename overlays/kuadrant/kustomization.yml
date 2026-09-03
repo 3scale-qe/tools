@@ -6,6 +6,7 @@ resources:
   - ../../base/mockserver/
   - ../../base/jaeger/
   - ../../base/keycloak-deployment/
+  - /grafana-dashboards/
 
 images:
   - name: quay.io/rh_integration/go-httpbin
